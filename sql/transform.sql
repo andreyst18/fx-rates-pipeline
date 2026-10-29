@@ -49,8 +49,7 @@ SELECT
         ),
         6
     ) AS ma_30d
-    FROM daily_rates,
-    ORDER BY date DESC;
+    FROM daily_rates;
 
 
     CREATE INDEX IF NOT EXISTS idx_mart_fx_daily_date ON mart_fx_daily(date);

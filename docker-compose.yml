@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
       - ./sql/01_create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U andrey_data -d fx_db"]
@@ -29,7 +29,7 @@ services:
       DB_NAME: fx_db
       DB_USER: andrey_data
       DB_PASSWORD: ${DB_PASSWORD}
-    command: sh -c "python load.py && psql -h postgres -U andrey_data -d fx_db -f sql/transform.sql || true"
+    command: sh -c "python load.py && python transform.py"
 
 volumes:
   pgdata:
