@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: fx_postgres
+    environment:
+      POSTGRES_DB: fx_db
+      POSTGRES_USER: andrey_data
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/01_create_tables.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U andrey_data -d fx_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pipeline:
+    build: .
+    container_name: fx_pipeline
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: fx_db
+      DB_USER: andrey_data
+      DB_PASSWORD: ${DB_PASSWORD}
+    command: sh -c "python load.py && psql -h postgres -U andrey_data -d fx_db -f sql/transform.sql || true"
+
+volumes:
+  pgdata:
